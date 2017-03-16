@@ -1,4 +1,4 @@
-/*·ÖÅä/ÉèÖÃ/×¢²áÒ»¸öplatform_device*/
+/* åˆ†é…/è®¾ç½®/æ³¨å†Œä¸€ä¸ª platform_device*/
 
 static struct resource led_resource[]{
 	[0] = {
@@ -30,7 +30,3 @@ static void led_dev_exit(void)
 {
 	platform_device_unregister(&led_dev);
 }
-
-
-
-

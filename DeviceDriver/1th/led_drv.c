@@ -24,31 +24,34 @@ static volatile unsigned long *gpio_con;    //gpio配置寄存器
 static volatile unsigned long *gpio_dat;    //gpio数据寄存器
 static int pin;   //led资源引脚
 
+//定义led_open函数
 static int led_open(struct inode *inode, struct file *file)
 {
-    *gpio_con &= ~(0x3 << (pin * 2));
-    *gpio_con |= (0x1 << (pin * 2));
+    //pin 4为nLED 1的连接位
+    *gpio_con &= ~(0x1 << (pin * 2));   //配置gpio_con寄存器的第4位为0。
+    *gpio_dat |= (0x1 << (pin * 2));    //输出1
     return 0;
 }
 
+//定义led_write函数
 static ssize_t led_write(struct file *file, const char __user *buf,size_t count,loff_t * ppos)
 {
   int val;
 
-  copy_from_user(&val, buf, count);
+  copy_from_user(&val, buf, count);   //
 
   if(val == 1)
   {
-    *gpio_dat &= ~(1 << pin);
+    *gpio_dat &= ~(1 << pin);   //清0第4位
   }
   else
   {
-    *gpio_dat |= (1 << pin);
+    *gpio_dat |= (1 << pin);    //置1第4位
   }
 
   return 0;
 }
-//构造一个file_operations结构体
+//构造一个file_operations结构体，在该结构体中实现设备的相关的操作函数
 //实现设备的open, write, read
 static struct file_operations led_fops = {
     .owmer  = THIS_MODULE,
@@ -83,7 +86,7 @@ static int led_probe(struct platform_device *pdev)
     return 0;
 }
 
-//定义led_remove函数
+//定义led_remove函数，卸载相关的节点设备
 static int led_remove(platform_device *pdev)
 {
     /*卸载字符设备驱动程序*/

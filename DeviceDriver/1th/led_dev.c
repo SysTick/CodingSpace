@@ -13,13 +13,16 @@
 
 //资源
 //关于led相关的硬件资源，包括以后需要修改时候，我们只需要修改关于资源部分的就可以
-//nLED 1  GPF4
-//nLED 2  GPF5
-//nLED 3  GPF6
+
+//TQ2440
+//nLED_1 GPB5
+//nLED_1 GPB6
+//nLED_1 GPB7
+//nLED_1 GPB8
 static struct resource led_resource[]{
 	//
 	[0] = {
-		.start = 0x56000050,	//GPFCON 寄存器地址
+		.start = 0x56000010,	//GPFCON 寄存器地址
 		.end   = 0x56000050 + 8 - 1,	// 这个为什么要这么写呢？？
 		.flags = IORESOURCE_MEM,	//表明为内存资源
 	},
@@ -61,7 +64,7 @@ static void led_dev_exit(void)
 	platform_device_unregister(&led_dev);		//卸载一个platform_device
 }
 
-//修饰一下入口函数和出口函数，并加上GPL协议
+//修饰一下入口函数和出口函数，并加上GPL协议,不加会报错
 module_init(led_dev_init);
 module_exit(led_dev_exit);
 

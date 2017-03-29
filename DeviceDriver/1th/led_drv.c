@@ -54,7 +54,7 @@ static ssize_t led_write(struct file *file, const char __user *buf,size_t count,
 //构造一个file_operations结构体，在该结构体中实现设备的相关的操作函数
 //实现设备的open, write, read
 static struct file_operations led_fops = {
-    .owmer  = THIS_MODULE,
+    .owner  = THIS_MODULE,
     .open   = led_open,
     .write  = led_write,
 };
@@ -66,7 +66,7 @@ static int led_probe(struct platform_device *pdev)
     struct resource *res;
 
     /*根据platform_device的资源进行ioremap*/
-    res = platform_get_resource(pdev, IOREOURCE_MEM, 0);    //内存资源
+    res = platform_get_resource(pdev, IORESOURCE_MEM, 0);    //内存资源
     gpio_con = ioremap(res->start, res->end - res->start + 1);    // ioremap(起始地址，大小)
     gpio_dat = gpio_con + 1;
 
@@ -76,7 +76,7 @@ static int led_probe(struct platform_device *pdev)
 
     printk("led_probe, found led\n");
     //注册一个字符设备
-    major = register_chrdev(0, "myled", led_fops);
+    major = register_chrdev(0, "myled", &led_fops);
 
     //让系统自动为我们创建设备节点
     cls = class_create(THIS_MODULE, "myled");
@@ -84,10 +84,10 @@ static int led_probe(struct platform_device *pdev)
     class_device_create(cls, NULL, MKDEV(major, 0), NULL, "led");   /* /dev/led*/
 
     return 0;
-}
+};
 
 //定义led_remove函数，卸载相关的节点设备
-static int led_remove(platform_device *pdev)
+static int led_remove(struct platform_device *pdev)
 {
     /*卸载字符设备驱动程序*/
 
@@ -97,8 +97,10 @@ static int led_remove(platform_device *pdev)
 
     class_device_destroy(cls, MKDEV(major, 0));
     class_destroy(cls);
-    uregister_chrdev(major, "myled");
+    unregister_chrdev(major, "myled");
     iounmap(gpio_con);
+
+
     return 0;
 }
 
@@ -111,9 +113,9 @@ struct platform_driver led_drv = {
         //这里的设备名称要和dev里的一致，
         //平台总线里的match函数通过比较他们的名字，
         //内核里面有同名的platform_device和platform_driver时，系统才会调用probe函数
-        .name   "myled",
+        .name = "myled",
     }
-}
+};
 
 //入口函数
 static int led_drv_init(void)
